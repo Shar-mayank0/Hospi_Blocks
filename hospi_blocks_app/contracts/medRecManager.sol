@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 contract MedicalRecordManager {
     enum UserRole { Admin, Hospital, Patient }
+    address private admin;
+    address private adminaddress = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 ;
 
     struct MedicalRecord {
         string recordID;
@@ -22,7 +24,6 @@ contract MedicalRecordManager {
         MedicalRecord[] medicalRecords;
     }
 
-    address public admin;
     mapping(address => UserRole) public userRoles;
     mapping(string => Patient) public patients;
 
@@ -39,8 +40,12 @@ contract MedicalRecordManager {
     }
 
     constructor() {
-        admin = msg.sender;
-        userRoles[msg.sender] = UserRole.Admin;
+        if (msg.sender == adminaddress) {
+            admin = msg.sender;
+            userRoles[msg.sender] = UserRole.Admin;
+        } else {
+            revert("Only admin can perform this action");
+        }
     }
 
     function registerHospital(address _hospital) public onlyAdmin {
